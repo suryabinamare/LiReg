@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Visualize and Learn Linear Regression</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+</head>
+<body>
+    <h1 class="main-heading">Visualize and Learn Linear Regression</h1>
+
+
+    <!-- Introduction Section -->
+    <div class="container1">
+        <p>
+            <b>Linear regression</b> is a statistical method used to model the relationship between a dependent variable and one 
+            or more independent variables. It assumes a linear relationship, meaning the change in the dependent variable 
+            is proportional to the change in the independent variable(s). In its simplest form—simple linear regression—it 
+            fits a straight line to the data to predict outcomes. This technique is widely used in data analysis and machine 
+            learning for tasks like forecasting, trend analysis, and understanding variable relationships.
+        </p>
+        
+        <p>
+            One of the key aspects of linear regression is the calculation of the best-fit line,
+            which minimizes the sum of the squares of the vertical distances (residuals) between the observed data points and the line itself.
+            This method is known as "Ordinary Least Squares" (OLS).  
+        </p>
+
+        <p>
+            Suppose the dataset is 
+            \(\left\{ (x_1, y_1), (x_2, y_2), \dots, (x_n, y_n)\right\}\), where \(x\) is the predictor variable and \(y\) 
+            the response variable. The equation of the best-fit line can be expressed as 
+            $$\hat{y} = mx + b, $$ where \(m\) is the slope and \(b\) is the y-intercept.The sample data points \( (x_i, y_i)\) and 
+            predicted data points \((x_i, \hat{y}_i)\) are plotted as blue and red respectively below. 
+            For each \(x_i\), the error is \((y_i-\hat{y}_i)\), which is the vertical distance between red dot and blue dot. 
+            Since some blue dots lie above the line, while others lie below the line, the error could be positive as well as negative. 
+            
+            <img src="{{ url_for('static', filename='main_logo.png') }}" alt="Logo" class="right-image">
+            <br/>
+            
+            
+            To account negative errors, we take the sum of squares of all errors, which is denoted by <b>SSE</b>.
+            \begin{align*} \text{SSE} &= (y_1-\hat{y}_i)^2 + (y_2-\hat{y}_2)^2 + \dots + (y_n - \hat{y}_n)^2 = 
+            \sum_{i = 1}^n(y_i-\hat{y}_n)^2\\
+                &= \sum_{i = 1}^n(y_i-(mx_i + b))^2 \\
+                &= \sum_{i = 1}^n(y_i-mx_i - b)^2
+            \end{align*}
+
+            
+
+            <b>SSE</b> is a function of two variables; \(m\) and \(b\). Note that \(x_i\) and \(y_i\) are given data points. 
+            Using multivariate calculus, we take partial derivatives of \(SSE\) and set each to zero and solve for slope and intercept. 
+            $$\text{Partial derivative w.r.t}\ \  m = \frac{\partial SSE}{\partial m} = \sum_{i=1}^n 2(y_i-mx_i - b).x_i$$
+            $$\text{Partial derivative w.r.t}\ \  b = \frac{\partial SSE}{\partial b} = \sum_{i=1}^n 2(y_i-mx_i - b)(-1)$$
+            Setting both partial derivatives to zero and after simplifying, we get the followng values. 
+
+
+            <ul class="left-aligned">
+            <li>Mean of \(x\): \(\bar{x} = \frac{1}{n} \sum_{i=1}^n x_i\)</li>
+            <li>Mean of \(y\): \(\bar{y} = \frac{1}{n} \sum_{i=1}^n y_i\)</li>
+            <li>\(S_{xx} = \sum_{i=1}^n (x_i - \bar{x})^2\)</li>
+            <li>\(S_{yy} = \sum_{i=1}^n (y_i - \bar{y})^2\)</li>
+            <li>\(S_{xy} = \sum_{i=1}^n (x_i - \bar{x})(y_i - \bar{y})\)</li>
+            <li>Slope: \(m = \frac{S_{xy}}{S_{xx}}\)</li>
+            <li>Intercept: \(b = \bar{y} - m \bar{x}\)</li>
+            <li>Coefficient of Determination: \(R^2 = \frac{S_{xy}^2}{S_{xx}S_{yy}}\)</li>
+            <li>Correlation Coefficient: \(r = \sqrt{R^2}\)</li>
+        </ul>
+        </p>
+        
+    </div>
+
+  
+
+    <!-- Upload Form Section -->
+    <div class="container">
+        <div class="fancy-box">
+            <p>
+                <b>  Below you can upload an Excel spreadsheet file with two columns. 
+                Make sure that the first column has x-values and the second column has y-values. 
+                A scatter plot and the regression line are displayed. Moreover different values associated with regression 
+                analysis and the equation of the best fitted line are given below. </b>
+            </p>
+        </div>
+
+        <h2>Upload a CSV or Excel File</h2>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv,.xlsx" required>
+            <br><br>
+            <input type="submit" value="Upload & Plot" class="fancy-button">
+
+        </form>
+
+        {% if plot_url1 %}
+            <h3>Regression Line Plot</h3>
+            <img src="{{ plot_url1 }}" alt="Scatter Plot and Regression Line">
+        {% endif %}
+
+        {% if reg_values %}
+            <h3 class = "left-aligned">Regression Values</h3>
+            <ul class="left-aligned">
+                <li>\(\bar{x} =\) {{ reg_values[0] }}</li>
+                <li>\(\bar{y} =\) {{ reg_values[1] }}</li>
+                <li>\(S_{xx} =\) {{ reg_values[2] }}</li>
+                <li>\(S_{yy} =\) {{ reg_values[3] }}</li>
+                <li>\(S_{xy} =\) {{ reg_values[4] }}</li>
+                <li>Slope \(m =\) {{ reg_values[5] }}</li>
+                <li>Intercept \(b =\) {{ reg_values[6] }}</li>
+                <li>R² = {{ reg_values[7] }}</li>
+                <li>Correlation Coefficient \(r =\) {{ reg_values[8] }}</li>
+            </ul>
+
+            <h3>The Regression Equation:</h3>
+            <p>$$ {{ reg_eqn }} $$</p>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
